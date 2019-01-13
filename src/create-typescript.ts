@@ -1,18 +1,28 @@
 
-import * as execa from "execa";
-import * as fs from "fs-extra";
-import * as globby from "globby";
-import * as path from "path";
-import * as readPkg from "read-pkg";
-import * as writePkg from "write-pkg";
+import * as execa from 'execa';
+import * as fs from 'fs-extra';
+import * as globby from 'globby';
+import * as path from 'path';
+import * as readPkg from 'read-pkg';
+import * as writePkg from 'write-pkg';
 
-const dependencies: string[] = [];
+const dependencies: string[] = [
+  'convict',
+  'dotenv',
+  'winston',
+];
 const devDependencies: string[] = [
-  "typescript",
-  "tslint",
+  'typescript',
+  'tslint',
+  'tslint-config-airbnb',
+  'jest',
+  '@types/convict',
+  '@types/dotenv',
+  '@types/node',
+
 ];
 
-const isWin = process.platform === "win32";
+const isWin = process.platform === 'win32';
 
 const npmBinRegExp = isWin
   ? /[\\/]np[mx](\.cmd)?$/
@@ -32,7 +42,7 @@ export async function install(cwd: string): Promise<void> {
 }
 
 async function checkBin(bin: string): Promise<boolean> {
-  return !execa.sync(bin, ["-v"], {
+  return !execa.sync(bin, ['-v'], {
     reject: false,
   }).failed;
 }
@@ -40,19 +50,19 @@ async function checkBin(bin: string): Promise<boolean> {
 async function findBin(): Promise<string> {
   const { env } = process;
 
-  let bin = "yarn";
+  let bin = 'yarn';
 
   if (npmJsRegExp.test(env.NPM_CLI_JS as string) ||
       npmJsRegExp.test(env.NPX_CLI_JS as string) ||
       npmBinRegExp.test(env._ as string)) {
-    bin = "npm";
+    bin = 'npm';
   }
 
   if (!await checkBin(bin)) {
-    bin = bin === "yarn" ? "npm" : "yarn";
+    bin = bin === 'yarn' ? 'npm' : 'yarn';
 
     if (!await checkBin(bin)) {
-      throw new Error("No package manager found.");
+      throw new Error('No package manager found.');
     }
   }
 
@@ -62,24 +72,29 @@ async function findBin(): Promise<string> {
 async function initPackage(bin: string, cwd: string): Promise<void> {
   const initArgs = process.argv
     .slice(2)
-    .filter((arg) => arg.startsWith("-"));
+    .filter(arg => arg.startsWith('-'));
 
   const binArgs = [
-    "init",
+    'init',
     ...initArgs,
   ];
 
-  await execa(bin, binArgs, { cwd, stdio: "inherit" });
+  await execa(bin, binArgs, { cwd, stdio: 'inherit' });
 }
 
-async function installDependencies(deps: string[], bin: string, cwd: string, isDev: boolean = false): Promise<void> {
+async function installDependencies(
+    deps: string[],
+    bin: string,
+    cwd: string,
+    isDev: boolean = false,
+): Promise<void> {
   if (deps.length <= 0) {
     return;
   }
 
-  const args = bin === "yarn"
-    ? ["add", isDev && "--dev", ...deps].filter(Boolean)
-    : ["i", isDev ? "--save-dev" : "--save", ...deps];
+  const args = bin === 'yarn'
+    ? ['add', isDev && '--dev', ...deps].filter(Boolean)
+    : ['i', isDev ? '--save-dev' : '--save', ...deps];
   await execa(
     bin,
     args as ReadonlyArray<string>,
@@ -92,16 +107,20 @@ async function writePackageScripts(cwd: string): Promise<void> {
   await writePkg(cwd, {
     ...pkg,
     files: [
-      "./bin/*",
-      "./lib/*",
+      './bin/*',
+      './lib/*',
     ],
-    main: "./lib/index.js",
-    typings: "./lib/index.d.ts",
+    main: './lib/index.js',
+    typings: './lib/index.d.ts',
     scripts: {
       ...pkg.scripts,
-      build: "tsc",
-      lint: "tslint -c tslint.json src/**/*.ts",
-      prepublish: "npm run build",
+      start: 'node ./lib/index.js',
+      prestart: 'npm run -s build',
+      prebuild: 'npm run -s lint',
+      build: 'tsc',
+      lint: 'tslint -c tslint.json --project tsconfig.json -t codeFrame',
+      prepublish: 'npm run build',
+      test: 'jest',
     },
     _id: undefined,
     readme: undefined,
@@ -110,24 +129,25 @@ async function writePackageScripts(cwd: string): Promise<void> {
 
 async function initFiles(cwd: string) {
   const filesFromThisProject = [
-    "tsconfig.json",
+    'tsconfig.json',
   ];
   const filesFromTemplate = [
-    ".gitignore",
-    "tslint.json",
-    "README.md",
-    "src/*",
+    '.editorconfig',
+    '.gitignore',
+    'tslint.json',
+    'README.md',
+    'src/*',
   ];
 
   await Promise.all([
     copyFiles(
       filesFromThisProject,
-      path.join(__dirname, ".."),
+      path.join(__dirname, '..'),
       cwd,
     ),
     copyFiles(
       filesFromTemplate,
-      path.join(__dirname, "../template"),
+      path.join(__dirname, '../template'),
       cwd,
     ),
   ]);

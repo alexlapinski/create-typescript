@@ -1,13 +1,12 @@
 {
   "name": "create-typescript",
-  "version": "1.0.5",
-  "description": "Create typescript module",
+  "version": "1.0.0",
+  "description": "Modified Create typescript module",
   "license": "MIT",
-  "repository": "LoicMahieu/create-typescript",
+  "repository": "alexlapinski/create-typescript",
   "author": {
-    "name": "Loïc Mahieu",
-    "email": "mahieuloic@gmail.com",
-    "url": "https://igloo.be"
+    "name": "Alex Lapinski",
+    "email": "contact@alexlapinski.name"
   },
   "engines": {
     "node": ">=6"
@@ -29,7 +28,7 @@
   ],
   "scripts": {
     "clean": "rimraf lib",
-    "lint": "tslint \"src/**/*.ts\" -p . -t stylish",
+    "lint": "tslint -c tslint.json --project tsconfig.json -t codeFrame",
     "compile": "tsc",
     "build": "npm run clean && npm run lint && npm run compile",
     "watch": "npm run clean && npm run lint & npm run compile -- --sourceMap --watch",
@@ -44,6 +43,8 @@
     "write-pkg": "^3.1.0"
   },
   "devDependencies": {
+    "@types/convict": "^4.2.1",
+    "@types/dotenv": "^6.1.0",
     "@types/execa": "^0.9.0",
     "@types/fs-extra": "^5.0.2",
     "@types/globby": "^6.1.0",
@@ -51,6 +52,7 @@
     "@types/write-pkg": "^3.1.0",
     "rimraf": "^2.6.2",
     "tslint": "^5.10.0",
+    "tslint-config-airbnb": "^5.11.1",
     "typescript": "^2.8.3"
   }
 }
