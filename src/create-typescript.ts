@@ -119,7 +119,7 @@ async function writePackageScripts(cwd: string): Promise<void> {
       prebuild: 'npm run -s lint',
       build: 'tsc',
       lint: 'tslint -c tslint.json --project tsconfig.json -t codeFrame',
-      prepublish: 'npm run build',
+      prepare: 'npm run build',
       test: 'jest',
     },
     _id: undefined,

@@ -1,5 +1,5 @@
 {
-  "name": "create-typescript",
+  "name": "@alex.lapinski/create-typescript",
   "version": "1.0.0",
   "description": "Modified Create typescript module",
   "license": "MIT",
@@ -33,7 +33,7 @@
     "build": "npm run clean && npm run lint && npm run compile",
     "watch": "npm run clean && npm run lint & npm run compile -- --sourceMap --watch",
     "test": "rimraf test-dir && mkdir test-dir && yarn run build && cd test-dir && ../bin/create-typescript -y && yarn build && yarn lint",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "dependencies": {
     "execa": "^0.10.0",
