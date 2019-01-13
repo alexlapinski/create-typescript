@@ -30,5 +30,8 @@
 		"declaration": true,
 
 		"pretty": true
-	}
+	},
+  "exclude": [
+    "./template/src"
+  ]
 }
